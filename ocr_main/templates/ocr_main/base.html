@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Himirror - Identifier for cosmetic products</title>
+    <link rel="shortcut icon" href="#" />
+    {% block head_content %}{% endblock %}
+
+</head>
+<body>
+{% load socialaccount %}
+{% if user.is_authenticated %}
+
+<div style="float: right">
+        <li><a href="{% url 'main' %}">Main</a></li>
+        <li><a href="{% url 'account_logout' %}">Logout</a></li>
+</div>
+
+{% block content %}
+{% endblock %}
+{% else %}
+<p>You are not logged in</p>
+
+<ul>
+    <li><a href="{% url 'account_login' %}">Login Page</a></li>
+</ul>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,246 @@
+{% extends 'ocr_main/base.html' %}
+
+{% load staticfiles %}
+
+{% block title %}{% endblock %}
+
+{% block head_content %}
+<style type="text/css">
+    body {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    }
+
+    a, h1, h2 {
+        color: #377ba8;
+    }
+
+    h1, h2 {
+        margin: 0;
+    }
+
+    h1 {
+        border-bottom: 0.5px solid #eee;
+    }
+
+    h2 {
+        font-size: 1.2em;
+        text-align: center;
+    }
+
+    #table_style {
+
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    #table_style td, #table_style th {
+        border: 5px solid #ddd;
+        padding: 8px;
+    }
+
+    #table_style tr:hover {
+        background-color: #FFC8B4;
+    }
+
+    #table_style th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    #table_style table {
+
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .sl-custom-file {
+        position: relative;
+        display: inline-block;
+        zoom: 1;
+        cursor: pointer;
+        overflow: hidden;
+        vertical-align: middle;
+    }
+
+    .sl-custom-file .ui-input-file {
+        position: absolute;
+        right: 0;
+        top: 0;
+        _zoom: 30;
+        font-size: 300px \9;
+        height: 100%;
+        _height: auto;
+        opacity: 0;
+        filter: alpha(opacity=0);
+        -ms-filter: "alpha(opacity=0)";
+        cursor: pointer;
+    }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!--{% if user.is_authenticated %}-->
+
+<div style="text-align:center">
+    <h1>Identifier system for cosmetic products</h1>
+    <form method="post" name="formen" enctype="multipart/form-data" onsubmit="return fileCountCheck(this);">
+        {% csrf_token %}
+
+        <!--<input type="button" value="選擇上傳的文件"/>-->
+        <!--<input type="file" name="img_files" multiple="multiple" required="required" class="ui-input-file"/>-->
+
+        <input type="file" name="img_files" multiple="multiple" required="required" style="display:none"
+               onChange="document.formen.path.value='Select ' +this.files.length + ' files' "/>
+
+        <input name="path" readonly style="width:100px">
+        <input type="button"
+               value="Choose File"
+               onclick="document.formen.img_files.click()">
+
+        <button type="submit">Upload</button>
+    </form>
+
+
+    <script type="text/javascript">
+        function fileCountCheck(objForm) {
+            if (window.File && window.FileList) {
+                var fileCount = objForm["img_files"].files.length;
+
+                if (fileCount > 5) {
+                    window.alert('The maximum number of files is "5", you select ' + fileCount + ' files!!!');
+                    return false;
+                }
+
+            }
+        }
+
+
+    </script>
+</div>
+
+
+<!--{% else %}-->
+<!--<p>You are not logged in</p>-->
+<!--{% endif %}-->
+
+
+<HR>
+{% if not result_list %}
+<p>
+<h1><font color="blue">The item cannot be identified, please re-upload!!!</font></h1></p>
+{% else %}
+
+<table id="table_style">
+    <tr bgcolor="#eee">
+        <TH> NO.</TH>
+        <TH> Upload image</TH>
+        <TH> Result</TH>
+    </tr>
+
+    {% for table in result_list %}
+
+    <tr>
+
+        <td><h2>{{ table.number }}</h2></td>
+
+        <td align="center">
+
+            <div>File name: <span id="btn{{ table.number }}-fileName">{{ table.gv_file }}</span>
+                <button id="btn{{ table.number }}-1">Copy text</button>
+            </div>
+            <HR>
+            <div>Identifier-text:</br>  <span id="btn{{ table.number }}-gvText">{{ table.gv_text }}</span>
+                <button id="btn{{ table.number }}-2">Copy text</button>
+            </div>
+            <HR>
+            <div><IMG src="{{ table.prd_img }}" width="30%"></div>
+            <HR>
+            <div>Spend time: {{ table.spend_time}} seconds</div>
+
+        </td>
+
+        <td><p><a href="{{ ip }}/img/{{ table.number }}" target="_blank">/img/{{table.number}}</a></p>
+    </tr>
+
+    <SCRIPT LANGUAGE="JavaScript">
+        document.getElementById("btn{{ table.number }}-1").addEventListener("click", function () {
+            copyToClipboard(document.getElementById("btn{{ table.number }}-fileName"));
+        });
+
+        document.getElementById("btn{{ table.number }}-2").addEventListener("click", function () {
+            copyToClipboard(document.getElementById("btn{{ table.number }}-gvText"));
+        });
+
+
+    </SCRIPT>
+
+    {% endfor %}
+
+
+</table>
+<SCRIPT LANGUAGE="JavaScript">
+
+    function copyToClipboard(elem) {
+        // create hidden text element, if it doesn't already exist
+        var targetId = "_hiddenCopyText_";
+        var isInput = elem.tagName === "INPUT" || elem.tagName === "TEXTAREA";
+        var origSelectionStart, origSelectionEnd;
+        if (isInput) {
+            // can just use the original source element for the selection and copy
+            target = elem;
+            origSelectionStart = elem.selectionStart;
+            origSelectionEnd = elem.selectionEnd;
+        } else {
+            // must use a temporary form element for the selection and copy
+            target = document.getElementById(targetId);
+            if (!target) {
+                var target = document.createElement("textarea");
+                target.style.position = "absolute";
+                target.style.left = "-9999px";
+                target.style.top = "0";
+                target.id = targetId;
+                document.body.appendChild(target);
+            }
+            target.textContent = elem.textContent;
+        }
+        // select the content
+        var currentFocus = document.activeElement;
+        target.focus();
+        target.setSelectionRange(0, target.value.length);
+
+        // copy the selection
+        var succeed;
+        try {
+            succeed = document.execCommand("copy");
+        } catch (e) {
+            succeed = false;
+        }
+        // restore original focus
+        if (currentFocus && typeof currentFocus.focus === "function") {
+            currentFocus.focus();
+        }
+
+        if (isInput) {
+            // restore prior selection
+            elem.setSelectionRange(origSelectionStart, origSelectionEnd);
+        } else {
+            // clear temporary content
+            target.textContent = "";
+        }
+        return succeed;
+    }
+
+
+</SCRIPT>
+
+<HR>
+
+{% endif %}
+{% endblock %}

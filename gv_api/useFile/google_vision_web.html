@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <style>
+        body            { font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;}
+         a, h1, h2       { color: #377ba8; }
+         h1, h2          { margin: 0; }
+         h1              { border-bottom: 0.5px solid #eee; }
+         h2              { font-size: 1.2em;text-align: center; }
+
+
+         #table_style {
+
+             font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+             border-collapse: collapse;
+             width: 100%;
+         }
+
+         #table_style td, #table_style th {
+             border: 5px solid #ddd;
+             padding: 8px;
+         }
+
+
+         #table_style tr:hover {background-color: #FFC8B4;}
+
+         #table_style th {
+             padding-top: 12px;
+             padding-bottom: 12px;
+
+             background-color: #4CAF50;
+             color: white;
+
+         #table_style table{
+
+         margin-left:auto;
+         margin-right:auto;
+         }
+
+    </style>
+    <meta charset="UTF-8">
+    <title>{{titleName}}</title>
+</head>
+<body>
+
+<div style="text-align:center;position: top">
+    <h1>{{titleName}}</h1>
+</div>
+<HR>
+
+{% if not result_list %}
+<p>
+<h1><font color="blue">此商品無法辨識!!!</font></h1></p>
+{% else %}
+
+<table id="table_style">
+    <tr bgcolor="#eee">
+        <TH> 項次</TH>
+        <TH> 產品照片</TH>
+        <TH> 辨識結果</TH>
+    </tr>
+
+
+    {% for table in result_list %}
+
+    <tr>
+
+        <td><h2>{{ table.Number }}</h2></td>
+        <td align="center">
+
+            {%for img in table.AmazonPic %}
+
+            <IMG src="{{ img }}" width="300px">
+
+            {% endfor %}
+        </td>
+
+        <td><p>{{ table.Result_title}}</p>
+            <div style="text-align:center">
+                <form action="{{ table.Result_url }}" method="post">
+                    <input type="submit" value="Choice" style="width: 100px;height:50px; font-size: 10px;">
+                </form>
+            </div>
+        </td>
+
+
+    </tr>
+
+
+    {% endfor %}
+
+
+</table>
+
+<HR>
+<div style="text-align:center">
+    <form action="#" method="post">
+        <input type="submit" value="N/A" size="30" style="width: 500px;height:100px; font-size: 25px;">
+    </form>
+</div>
+
+{% endif %}
+</body>
+</html>
